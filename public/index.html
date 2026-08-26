@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS EC2 Node Server Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="background-glow"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="aws-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+            <line x1="6" y1="6" x2="6.01" y2="6"></line>
+            <line x1="6" y1="18" x2="6.01" y2="18"></line>
+          </svg>
+        </div>
+        <div>
+          <h1>AWS EC2 Node.js Server</h1>
+          <p class="subtitle">Cloud-ready Web Application & API Service</p>
+        </div>
+      </div>
+      <div class="status-pill" id="serverStatusBadge">
+        <span class="status-dot pulse"></span>
+        <span id="statusText">Checking Status...</span>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="grid">
+      <!-- Instance Card -->
+      <section class="card ec2-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-icon">☁️</span>
+            <h2>Cloud Deployment Status</h2>
+          </div>
+          <span class="badge" id="envBadge">production</span>
+        </div>
+        <div class="card-body">
+          <div class="metric-row">
+            <span class="label">Host Platform:</span>
+            <span class="value font-mono" id="hostPlatform">Loading...</span>
+          </div>
+          <div class="metric-row">
+            <span class="label">AWS Instance ID:</span>
+            <span class="value font-mono highlight" id="instanceId">Checking IMDSv2...</span>
+          </div>
+          <div class="metric-row">
+            <span class="label">Hostname:</span>
+            <span class="value font-mono" id="hostname">Loading...</span>
+          </div>
+          <div class="metric-row">
+            <span class="label">Client Remote IP:</span>
+            <span class="value font-mono" id="clientIp">Loading...</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- System Telemetry Card -->
+      <section class="card telemetry-card">
+        <div class="card-header">
+          <div class="card-title">
+            <span class="card-icon">⚡</span>
+            <h2>Live System Telemetry</h2>
+          </div>
+          <button class="btn btn-sm" id="btnRefresh">Refresh</button>
+        </div>
+        <div class="card-body">
+          <div class="stats-row">
+            <div class="stat-box">
+              <span class="stat-label">Uptime</span>
+              <span class="stat-val" id="statUptime">0s</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">Node Version</span>
+              <span class="stat-val font-mono" id="statNodeVer">-</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">CPU Cores</span>
+              <span class="stat-val" id="statCpus">-</span>
+            </div>
+          </div>
+          <div class="memory-container">
+            <div class="mem-header">
+              <span>RAM Usage: <strong id="memText">0 MB / 0 MB</strong></span>
+              <span id="memPercent">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="memProgress" style="width: 0%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- API Explorer & Quick Test -->
+    <section class="card api-card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon">🔌</span>
+          <h2>Built-in API Endpoints</h2>
+        </div>
+        <span class="caption">Test live server endpoints directly</span>
+      </div>
+      <div class="api-grid">
+        <div class="api-item">
+          <div class="api-meta">
+            <span class="method get">GET</span>
+            <span class="path">/health</span>
+          </div>
+          <p class="api-desc">AWS ALB / Target Group health check endpoint returning 200 OK.</p>
+          <button class="btn btn-secondary" onclick="testEndpoint('/health', 'GET')">Send Request</button>
+        </div>
+
+        <div class="api-item">
+          <div class="api-meta">
+            <span class="method get">GET</span>
+            <span class="path">/api/system</span>
+          </div>
+          <p class="api-desc">Detailed hardware, CPU specs, and RAM utilization metrics.</p>
+          <button class="btn btn-secondary" onclick="testEndpoint('/api/system', 'GET')">Send Request</button>
+        </div>
+
+        <div class="api-item">
+          <div class="api-meta">
+            <span class="method get">GET</span>
+            <span class="path">/api/info</span>
+          </div>
+          <p class="api-desc">Application metadata and AWS IMDSv2 EC2 detection.</p>
+          <button class="btn btn-secondary" onclick="testEndpoint('/api/info', 'GET')">Send Request</button>
+        </div>
+
+        <div class="api-item">
+          <div class="api-meta">
+            <span class="method post">POST</span>
+            <span class="path">/api/echo</span>
+          </div>
+          <p class="api-desc">Echoes incoming JSON payload and request headers back to client.</p>
+          <button class="btn btn-secondary" onclick="testEndpoint('/api/echo', 'POST', { ping: 'aws-ec2-hello', timestamp: Date.now() })">Send POST</button>
+        </div>
+      </div>
+
+      <!-- Live Response Viewer -->
+      <div class="response-panel">
+        <div class="response-header">
+          <span>Live Response Viewer (<span id="responseStatus">-</span>)</span>
+          <span id="responseTime" class="font-mono text-muted">0ms</span>
+        </div>
+        <pre id="responseJson"><code>Click one of the "Send Request" buttons above to inspect the API JSON response.</code></pre>
+      </div>
+    </section>
+
+    <!-- Quick EC2 Commands Cheat-sheet -->
+    <section class="card guide-card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon">🚀</span>
+          <h2>Quick AWS EC2 Deployment Commands</h2>
+        </div>
+      </div>
+      <div class="code-block-wrapper">
+        <pre><code># 1. Connect to EC2 (Amazon Linux 2023 or Ubuntu)
+ssh -i your-key.pem ec2-user@YOUR_EC2_PUBLIC_IP
+
+# 2. Run with PM2 for 24/7 uptime & auto-restart
+sudo npm install -g pm2
+pm2 start server.js --name "aws-node-app"
+pm2 startup
+pm2 save</code></pre>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>Node.js Server built for AWS EC2 & Cloud Architectures • MIT License</p>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
